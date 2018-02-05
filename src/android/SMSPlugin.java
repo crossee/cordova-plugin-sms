@@ -32,7 +32,7 @@ import org.json.JSONObject;
 public class SMSPlugin
 extends CordovaPlugin {
     private static final String LOGTAG = "SMSPlugin";
-    
+
     public static final String ACTION_SET_OPTIONS = "setOptions";
     private static final String ACTION_START_WATCH = "startWatch";
     private static final String ACTION_STOP_WATCH = "stopWatch";
@@ -41,13 +41,13 @@ extends CordovaPlugin {
     private static final String ACTION_DELETE_SMS = "deleteSMS";
     private static final String ACTION_RESTORE_SMS = "restoreSMS";
     private static final String ACTION_SEND_SMS = "sendSMS";
-    
+
     public static final String OPT_LICENSE = "license";
     private static final String SEND_SMS_ACTION = "SENT_SMS_ACTION";
     private static final String DELIVERED_SMS_ACTION = "DELIVERED_SMS_ACTION";
     private static final String SMS_RECEIVED = "android.provider.Telephony.SMS_RECEIVED";
     public static final String SMS_EXTRA_NAME = "pdus";
-    
+
     public static final String SMS_URI_ALL = "content://sms/";
     public static final String SMS_URI_INBOX = "content://sms/inbox";
     public static final String SMS_URI_SEND = "content://sms/sent";
@@ -55,7 +55,7 @@ extends CordovaPlugin {
     public static final String SMS_URI_OUTBOX = "content://sms/outbox";
     public static final String SMS_URI_FAILED = "content://sms/failed";
     public static final String SMS_URI_QUEUED = "content://sms/queued";
-    
+
     public static final String BOX = "box";
     public static final String ADDRESS = "address";
     public static final String BODY = "body";
@@ -69,19 +69,19 @@ extends CordovaPlugin {
     public static final String REPLY_PATH_PRESENT = "reply_path_present";
     public static final String TYPE = "type";
     public static final String PROTOCOL = "protocol";
-    
+
     public static final int MESSAGE_TYPE_INBOX = 1;
     public static final int MESSAGE_TYPE_SENT = 2;
     public static final int MESSAGE_IS_NOT_READ = 0;
     public static final int MESSAGE_IS_READ = 1;
     public static final int MESSAGE_IS_NOT_SEEN = 0;
     public static final int MESSAGE_IS_SEEN = 1;
-    
+
     private static final String SMS_GENERAL_ERROR = "SMS_GENERAL_ERROR";
     private static final String NO_SMS_SERVICE_AVAILABLE = "NO_SMS_SERVICE_AVAILABLE";
     private static final String SMS_FEATURE_NOT_SUPPORTED = "SMS_FEATURE_NOT_SUPPORTED";
     private static final String SENDING_SMS_ID = "SENDING_SMS";
-    
+
     private ContentObserver mObserver = null;
     private BroadcastReceiver mReceiver = null;
     private boolean mIntercept = false;
@@ -236,6 +236,8 @@ extends CordovaPlugin {
         int fid = filter.has("_id") ? filter.optInt("_id") : -1;
         String faddress = filter.optString(ADDRESS);
         String fcontent = filter.optString(BODY);
+        int fdate = filter.optInt('startdate');
+        JSONArray addresslist = filter.optJSONArray('addresslist');
         int indexFrom = filter.has("indexFrom") ? filter.optInt("indexFrom") : 0;
         int maxCount = filter.has("maxCount") ? filter.optInt("maxCount") : 10;
         JSONArray jsons = new JSONArray();
@@ -243,6 +245,7 @@ extends CordovaPlugin {
         Uri uri = Uri.parse((SMS_URI_ALL + uri_filter));
         Cursor cur = ctx.getContentResolver().query(uri, (String[])null, "", (String[])null, null);
         int i = 0;
+        int n = 0;
         while (cur.moveToNext()) {
             JSONObject json;
             boolean matchFilter = false;
@@ -254,11 +257,19 @@ extends CordovaPlugin {
                 matchFilter = PhoneNumberUtils.compare(faddress, cur.getString(cur.getColumnIndex(ADDRESS)).trim());
             } else if (fcontent.length() > 0) {
                 matchFilter = fcontent.equals(cur.getString(cur.getColumnIndex(BODY)).trim());
+            } else if (fdate > 0) {
+                matchFilter = (fdate < cur.getInt(cur.getColumnIndex(DATE)));
+            } else if ((n = addresslist.length()) > 0) {
+                String address;
+                for (int j = 0; j < n; ++j) {
+                  if ((address = addresslist.optString(i)).length() <= 0) continue;
+                  matchFilter = PhoneNumberUtils.compare(address, cur.getString(cur.getColumnIndex(ADDRESS)).trim());
+                }
             } else {
                 matchFilter = true;
             }
             if (! matchFilter) continue;
-            
+
             if (i < indexFrom) continue;
             if (i >= indexFrom + maxCount) break;
             ++i;
@@ -277,7 +288,7 @@ extends CordovaPlugin {
 
     private JSONObject getJsonFromCursor(Cursor cur) {
 		JSONObject json = new JSONObject();
-		
+
 		int nCol = cur.getColumnCount();
 		String keys[] = cur.getColumnNames();
 
@@ -311,7 +322,7 @@ extends CordovaPlugin {
     private void fireEvent(final String event, JSONObject json) {
     	final String str = json.toString();
     	Log.d(LOGTAG, "Event: " + event + ", " + str);
-    	
+
         cordova.getActivity().runOnUiThread(new Runnable(){
             @Override
             public void run() {
@@ -320,7 +331,7 @@ extends CordovaPlugin {
             }
         });
     }
-    
+
     private void onSMSArrive(JSONObject json) {
         String from = json.optString(ADDRESS);
         String content = json.optString(BODY);
@@ -375,7 +386,7 @@ extends CordovaPlugin {
             }
 
             public void onChange(boolean selfChange, Uri uri) {
-                ContentResolver resolver = cordova.getActivity().getContentResolver(); 
+                ContentResolver resolver = cordova.getActivity().getContentResolver();
                 Log.d(LOGTAG, ("onChange, selfChange: " + selfChange + ", uri: " + (Object)uri));
                 int id = -1;
                 String str;
@@ -446,7 +457,7 @@ extends CordovaPlugin {
 
     private JSONObject getJsonFromSmsMessage(SmsMessage sms) {
     	JSONObject json = new JSONObject();
-    	
+
         try {
         	json.put( ADDRESS, sms.getOriginatingAddress() );
         	json.put( BODY, sms.getMessageBody() ); // May need sms.getMessageBody.toString()
@@ -457,14 +468,14 @@ extends CordovaPlugin {
         	json.put( STATUS, sms.getStatus() );
         	json.put( TYPE, MESSAGE_TYPE_INBOX );
         	json.put( SERVICE_CENTER, sms.getServiceCenterAddress());
-        	
-        } catch ( Exception e ) { 
-            e.printStackTrace(); 
+
+        } catch ( Exception e ) {
+            e.printStackTrace();
         }
 
     	return json;
     }
-    
+
     private ContentValues getContentValuesFromJson(JSONObject json) {
     	ContentValues values = new ContentValues();
     	values.put( ADDRESS, json.optString(ADDRESS) );

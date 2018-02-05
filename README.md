@@ -1,7 +1,7 @@
 
 # cordova-plugin-sms #
 
-Plugin to operate SMS, send / list / intercept / delete / restore. test.
+Plugin to operate SMS, send / list / intercept / delete / restore.
 
 ### How to Use? ###
 
