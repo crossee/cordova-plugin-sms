@@ -1,7 +1,7 @@
 
 # cordova-plugin-sms #
 
-Plugin to operate SMS, send / list / intercept / delete / restore.
+Plugin to operate SMS, send / list / intercept / delete / restore. test.
 
 ### How to Use? ###
 
@@ -46,17 +46,17 @@ setOptions(options, successCallback, failureCallback);
     cordova create test1 com.rjfun.test1 Test1
     cd test1
     cordova platform add android
-    
+
     # now add plugin
     cordova plugin add cordova-plugin-sms
-    
+
     # copy the demo file
     rm -r www/*; cp plugins/cordova-plugin-sms/test/* www/;
-    
+
 	# now build and run the demo in your device or emulator
-    cordova prepare; 
-    cordova run android; 
-    
+    cordova prepare;
+    cordova run android;
+
     # or import into Xcode / eclipse
 ```
 
@@ -85,7 +85,7 @@ More Cordova/PhoneGap plugins by Raymond Xie, [visit http://rjfun.github.io/](ht
 Cordova/PhoneGap plugins for the world leading Mobile Ad services:
 
 * [AdMob PluginPro](https://github.com/floatinghotpot/cordova-admob-pro), for Google AdMob/DoubleClick.
-* [iAd PluginPro](https://github.com/floatinghotpot/cordova-plugin-iad), for Apple iAd. 
+* [iAd PluginPro](https://github.com/floatinghotpot/cordova-plugin-iad), for Apple iAd.
 * [FacebookAds PluginPro](https://github.com/floatinghotpot/cordova-plugin-facebookads), for Facebook Audience Network.
 * [FlurryAds PluginPro](https://github.com/floatinghotpot/cordova-plugin-flurry), for Flurry Ads.
 * [mMedia PluginPro](https://github.com/floatinghotpot/cordova-plugin-mmedia), for Millennial Meida.
@@ -93,4 +93,3 @@ Cordova/PhoneGap plugins for the world leading Mobile Ad services:
 * [MoPub PluginPro](https://github.com/floatinghotpot/cordova-plugin-mopub), for MoPub.
 
 Project outsourcing and consulting service is also available. Please [contact us](http://floatinghotpot.github.io) if you have the business needs.
-
