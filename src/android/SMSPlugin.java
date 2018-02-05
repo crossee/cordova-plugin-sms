@@ -244,23 +244,27 @@ extends CordovaPlugin {
         Uri uri = Uri.parse((SMS_URI_ALL + uri_filter));
         Cursor cur = ctx.getContentResolver().query(uri, (String[])null, "", (String[])null, null);
         int i = 0;
-        int n = 0;
         while (cur.moveToNext()) {
             JSONObject json;
             boolean matchFilter = false;
-            if (fid > -1) {
-                matchFilter = (fid == cur.getInt(cur.getColumnIndex("_id")));
-            } else if (fread > -1) {
-                matchFilter = (fread == cur.getInt(cur.getColumnIndex(READ)));
-            } else if (fdate > -1) {
-                matchFilter = (fdate < cur.getLong(cur.getColumnIndex(DATE)));
-            } else if (faddress.length() > 0) {
-                matchFilter = PhoneNumberUtils.compare(faddress, cur.getString(cur.getColumnIndex(ADDRESS)).trim());
-            } else if (fcontent.length() > 0) {
-                matchFilter = fcontent.equals(cur.getString(cur.getColumnIndex(BODY)).trim());
+            if (fdate > -1 && faddress.length() > 0) {
+              matchFilter = (fdate < cur.getLong(cur.getColumnIndex(DATE))) && PhoneNumberUtils.compare(faddress, cur.getString(cur.getColumnIndex(ADDRESS)).trim());
             } else {
-                matchFilter = true;
+              if (fid > -1) {
+                  matchFilter = (fid == cur.getInt(cur.getColumnIndex("_id")));
+              } else if (fread > -1) {
+                  matchFilter = (fread == cur.getInt(cur.getColumnIndex(READ)));
+              } else if (fdate > -1) {
+                  matchFilter = (fdate < cur.getLong(cur.getColumnIndex(DATE)));
+              } else if (faddress.length() > 0) {
+                  matchFilter = PhoneNumberUtils.compare(faddress, cur.getString(cur.getColumnIndex(ADDRESS)).trim());
+              } else if (fcontent.length() > 0) {
+                  matchFilter = fcontent.equals(cur.getString(cur.getColumnIndex(BODY)).trim());
+              } else {
+                  matchFilter = true;
+              }
             }
+
             if (! matchFilter) continue;
 
             if (i < indexFrom) continue;
