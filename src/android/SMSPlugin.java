@@ -234,10 +234,9 @@ extends CordovaPlugin {
         String uri_filter = filter.has(BOX) ? filter.optString(BOX) : "inbox";
         int fread = filter.has(READ) ? filter.optInt(READ) : -1;
         int fid = filter.has("_id") ? filter.optInt("_id") : -1;
+        Long fdate = filter.has("startdate") ? filter.optLong("startdate") : -1;
         String faddress = filter.optString(ADDRESS);
         String fcontent = filter.optString(BODY);
-        int fdate = filter.optInt('startdate');
-        JSONArray addresslist = filter.optJSONArray('addresslist');
         int indexFrom = filter.has("indexFrom") ? filter.optInt("indexFrom") : 0;
         int maxCount = filter.has("maxCount") ? filter.optInt("maxCount") : 10;
         JSONArray jsons = new JSONArray();
@@ -253,18 +252,12 @@ extends CordovaPlugin {
                 matchFilter = (fid == cur.getInt(cur.getColumnIndex("_id")));
             } else if (fread > -1) {
                 matchFilter = (fread == cur.getInt(cur.getColumnIndex(READ)));
+            } else if (fdate > -1) {
+                matchFilter = (fdate < cur.getLong(cur.getColumnIndex(DATE)));
             } else if (faddress.length() > 0) {
                 matchFilter = PhoneNumberUtils.compare(faddress, cur.getString(cur.getColumnIndex(ADDRESS)).trim());
             } else if (fcontent.length() > 0) {
                 matchFilter = fcontent.equals(cur.getString(cur.getColumnIndex(BODY)).trim());
-            } else if (fdate > 0) {
-                matchFilter = (fdate < cur.getInt(cur.getColumnIndex(DATE)));
-            } else if ((n = addresslist.length()) > 0) {
-                String address;
-                for (int j = 0; j < n; ++j) {
-                  if ((address = addresslist.optString(i)).length() <= 0) continue;
-                  matchFilter = PhoneNumberUtils.compare(address, cur.getString(cur.getColumnIndex(ADDRESS)).trim());
-                }
             } else {
                 matchFilter = true;
             }
