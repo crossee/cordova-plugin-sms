@@ -255,8 +255,6 @@ extends CordovaPlugin {
                   matchFilter = (fid == cur.getInt(cur.getColumnIndex("_id")));
               } else if (fread > -1) {
                   matchFilter = (fread == cur.getInt(cur.getColumnIndex(READ)));
-              } else if (fdate > -1) {
-                  matchFilter = (fdate < cur.getLong(cur.getColumnIndex(DATE)));
               } else if (faddress.length() > 0) {
                   matchFilter = PhoneNumberUtils.compare(faddress, cur.getString(cur.getColumnIndex(ADDRESS)).trim());
               } else if (fcontent.length() > 0) {
