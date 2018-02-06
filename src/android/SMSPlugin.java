@@ -234,7 +234,8 @@ extends CordovaPlugin {
         String uri_filter = filter.has(BOX) ? filter.optString(BOX) : "inbox";
         int fread = filter.has(READ) ? filter.optInt(READ) : -1;
         int fid = filter.has("_id") ? filter.optInt("_id") : -1;
-        Long fdate = filter.has("startdate") ? filter.optLong("startdate") : -1;
+        Long fsdate = filter.has("startdate") ? filter.optLong("startdate") : -1;
+        Long fedate = filter.has("enddate") ? filter.optLong("enddate") : -1;
         String faddress = filter.optString(ADDRESS);
         String fcontent = filter.optString(BODY);
         int indexFrom = filter.has("indexFrom") ? filter.optInt("indexFrom") : 0;
@@ -247,8 +248,8 @@ extends CordovaPlugin {
         while (cur.moveToNext()) {
             JSONObject json;
             boolean matchFilter = false;
-            if (fdate > -1 && faddress.length() > 0) {
-              matchFilter = (fdate < cur.getLong(cur.getColumnIndex(DATE))) && PhoneNumberUtils.compare(faddress, cur.getString(cur.getColumnIndex(ADDRESS)).trim());
+            if (fsdate > -1 && faddress.length() > 0 && fedate > -1) {
+              matchFilter = (fsdate < cur.getLong(cur.getColumnIndex(DATE))) && (fedate > cur.getLong(cur.getColumnIndex(DATE))) && PhoneNumberUtils.compare(faddress, cur.getString(cur.getColumnIndex(ADDRESS)).trim());
             } else {
               if (fid > -1) {
                   matchFilter = (fid == cur.getInt(cur.getColumnIndex("_id")));
